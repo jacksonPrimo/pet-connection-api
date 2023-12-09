@@ -21,8 +21,18 @@ model User {
 
 model Post {
   id            Int      @default(autoincrement()) @id
-  name          String
+  name          String?
   description   String?
+  chip          String?
+  gender        String
+  image         String
+  race          String
+  situation     String
+  reward        Float?
+  addressLat    Float?
+  addressLng    Float?
+  addressLabel  String?
+  postedAt      DateTime   @default(now())
   author        User    @relation(fields: [authorId], references: [id])
   authorId      Int
 }
