@@ -1,6 +1,5 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { decode, sign, TokenExpiredError, verify } from 'jsonwebtoken';
-import { v4 } from 'uuid';
 
 interface TokenPayload {
   email: string;
@@ -10,28 +9,13 @@ interface TokenPayload {
 @Injectable()
 export class TokenUtil {
   private secret = 'apenasumtest';
-  private jwtExpiration = 3600;
-  private jwtRefreshExpiration = 86400;
+  private jwtExpiration = 604800; // 1 week
 
   public generateToken(payload: any) {
     const token = sign({ ...payload }, this.secret, {
       expiresIn: this.jwtExpiration,
     });
     return token;
-  }
-  public generateRefreshToken(userId: number) {
-    const expiredAt = new Date();
-    expiredAt.setSeconds(expiredAt.getSeconds() + this.jwtRefreshExpiration);
-    const refreshToken = {
-      userId,
-      token: v4(),
-      expiryDate: expiredAt,
-    };
-    return refreshToken;
-  }
-
-  public async validateRefreshToken(token: any) {
-    return token.expiryDate.getTime() > new Date().getTime();
   }
 
   public async validateToken(token: string) {
