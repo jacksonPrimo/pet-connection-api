@@ -20,8 +20,11 @@ export class AuthService {
       name: params.name,
     };
     try {
-      await this.prisma.user.create({ data });
-      const tokenCreated = this.tokenUtil.generateToken({ email: data.email });
+      const newUser = await this.prisma.user.create({ data });
+      const tokenCreated = this.tokenUtil.generateToken({
+        userId: newUser.id,
+        email: newUser.email,
+      });
       return { accessToken: tokenCreated };
     } catch (e) {
       console.log(e);
@@ -41,7 +44,10 @@ export class AuthService {
     if (!passwordIsValid) {
       throw new HttpException('password or email invalid', 400);
     }
-    const tokenCreated = this.tokenUtil.generateToken({ email, id: user.id });
+    const tokenCreated = this.tokenUtil.generateToken({
+      email,
+      userId: user.id,
+    });
 
     return { accessToken: tokenCreated };
   }
