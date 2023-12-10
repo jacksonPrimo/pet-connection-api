@@ -3,7 +3,7 @@ import { decode, sign, TokenExpiredError, verify } from 'jsonwebtoken';
 
 interface TokenPayload {
   email: string;
-  userId: number;
+  userId: string;
 }
 
 @Injectable()

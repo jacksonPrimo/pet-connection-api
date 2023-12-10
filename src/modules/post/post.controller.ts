@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Patch, Post, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Res,
+} from '@nestjs/common';
 import { PostService } from './post.service';
 import { Response } from 'express';
 
@@ -13,14 +22,14 @@ export class PostController {
   }
 
   @Get('/list')
-  async list(@Body() body: any, @Res() res: Response): Promise<any> {
-    const result = await this.postService.list(body);
+  async list(@Query() queryParams: any, @Res() res: Response): Promise<any> {
+    const result = await this.postService.list(queryParams);
     res.status(200).send(result);
   }
 
   @Get('/:id')
   async find(@Param('id') id: string, @Res() res: Response): Promise<any> {
-    const result = await this.postService.find(+id);
+    const result = await this.postService.find(id);
     res.status(200).send(result);
   }
 
@@ -30,7 +39,7 @@ export class PostController {
     @Body() body: any,
     @Res() res: Response,
   ): Promise<any> {
-    const result = await this.postService.update(+id, body);
+    const result = await this.postService.update(id, body);
     res.status(200).send(result);
   }
 }
