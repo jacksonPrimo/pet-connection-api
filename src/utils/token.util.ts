@@ -8,7 +8,7 @@ interface TokenPayload {
 
 @Injectable()
 export class TokenUtil {
-  private secret = 'apenasumtest';
+  private secret = process.env.JWT_SECRET;
   private jwtExpiration = 604800; // 1 week
 
   public generateToken(payload: any) {
