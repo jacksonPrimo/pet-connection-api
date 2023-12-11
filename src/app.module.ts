@@ -7,14 +7,17 @@ import { PostModule } from './modules/post/post.module';
 import { AuthenticatedMiddleware } from './middlewares/authenticated/authenticated.middleware';
 import { TokenUtil } from './utils/token.util';
 import { UserModule } from './modules/user/user.module';
+import { CommentModule } from './modules/comment/comment.module';
 
 @Module({
-  imports: [AuthModule, PostModule, UserModule],
+  imports: [AuthModule, PostModule, UserModule, CommentModule],
   controllers: [AppController],
   providers: [AppService, PrismaService, TokenUtil],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthenticatedMiddleware).forRoutes('/post', '/user');
+    consumer
+      .apply(AuthenticatedMiddleware)
+      .forRoutes('/post', '/user', '/comment');
   }
 }

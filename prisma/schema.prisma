@@ -22,6 +22,7 @@ model User {
   notification      Boolean @default(false)
   encryptPassword   String?
   posts             Post[]
+  comments          Comment[]
 }
 
 model Post {
@@ -38,6 +39,17 @@ model Post {
   addressLng    Float
   addressLabel  String
   postedAt      DateTime   @default(now())
+  author        User       @relation(fields: [authorId], references: [id])
+  authorId      String
+  comments      Comment[]
+}
+
+model Comment {
+  id            String      @default(uuid()) @id
+  description   String
+  postedAt      DateTime   @default(now())
+  post          Post       @relation(fields: [postId], references: [id])
+  postId        String
   author        User       @relation(fields: [authorId], references: [id])
   authorId      String
 }

@@ -73,7 +73,7 @@ export class PostService {
       };
     }
 
-    const page = filters.skip || 0;
+    const page = filters.page || 0;
     const limit = 24;
     const skip = page * limit;
 
