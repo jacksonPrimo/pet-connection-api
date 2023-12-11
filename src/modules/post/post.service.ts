@@ -60,16 +60,16 @@ export class PostService {
     if (filters.race && filters.race.length) {
       query['race'].in = filters.race;
     }
-    if (filters.biggerThanLat && filters.race.smallerThanLat) {
-      query['biggerThanLat'] = {
-        lte: filters.biggerThanLat,
-        gte: filters.smallerThanLat,
+    if (filters.biggerThanLat && filters.smallerThanLat) {
+      query['addressLat'] = {
+        lte: +filters.biggerThanLat,
+        gte: +filters.smallerThanLat,
       };
     }
-    if (filters.biggerThanLng && filters.race.smallerThanLng) {
-      query['biggerThanLng'] = {
-        lte: filters.biggerThanLng,
-        gte: filters.smallerThanLng,
+    if (filters.biggerThanLng && filters.smallerThanLng) {
+      query['addressLng'] = {
+        lte: +filters.biggerThanLng,
+        gte: +filters.smallerThanLng,
       };
     }
 
