@@ -22,13 +22,20 @@ export class CommentService {
   }
 
   async list(params: any) {
-    const page = params.page || 0;
+    const page = params.page ? +params.page : 0;
     const limit = 10;
     const skip = page * limit;
-
     const comments = await this.prisma.comment.findMany({
       where: {
         postId: params.postId,
+      },
+      select: {
+        description: true,
+        author: {
+          select: {
+            profileImage: true,
+          },
+        },
       },
       take: limit,
       skip,

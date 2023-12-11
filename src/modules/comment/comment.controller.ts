@@ -1,18 +1,26 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { CommentService } from './comment.service';
 
 @Controller('comment')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
-  @Post()
+  @Post('create')
   create(@Body() body: any) {
     return this.commentService.create(body);
   }
 
-  @Get()
-  list(@Body() body: any) {
-    return this.commentService.list(body);
+  @Get('list')
+  list(@Query() queryParams: any) {
+    return this.commentService.list(queryParams);
   }
 
   @Delete(':id')
