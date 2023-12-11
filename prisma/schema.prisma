@@ -17,9 +17,9 @@ model User {
   name              String
   phone             String?
   profileImage      String?
-  notificaionLat    Float?
-  notificaionLng    Float?
-  notificaion       Boolean @default(false)
+  notificationLat   Float?
+  notificationLng   Float?
+  notification      Boolean @default(false)
   encryptPassword   String?
   posts             Post[]
 }
