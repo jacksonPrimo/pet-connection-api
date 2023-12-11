@@ -15,7 +15,12 @@ model User {
   id                String  @default(uuid()) @id
   email             String  @unique
   name              String
-  encryptPassword   String
+  phone             String?
+  profileImage      String?
+  notificaionLat    Float?
+  notificaionLng    Float?
+  notificaion       Boolean @default(false)
+  encryptPassword   String?
   posts             Post[]
 }
 

@@ -2,7 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { CryptographyUtil } from 'src/utils/cryptography.util';
 import { TokenUtil } from 'src/utils/token.util';
 import { PrismaService } from 'src/prisma.service';
-
+import axios from 'axios';
 @Injectable()
 export class AuthService {
   constructor(
@@ -27,7 +27,34 @@ export class AuthService {
       });
       return { accessToken: tokenCreated };
     } catch (e) {
+      throw new HttpException('Ocorreu um erro inesperado', 422);
+    }
+  }
+  async signinWithGoogle(params: any): Promise<any> {
+    try {
+      const response = await axios.get(
+        `https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${params.token}`,
+      );
+      if (response.status == 200) {
+        const data = {
+          email: response.data.email,
+          name: response.data.email.split('@')[0],
+        };
+        let user = await this.prisma.user.findFirst({
+          where: { email: data.email },
+        });
+        if (!user) user = await this.prisma.user.create({ data });
+        const tokenCreated = this.tokenUtil.generateToken({
+          userId: user.id,
+          email: user.email,
+        });
+        return { accessToken: tokenCreated };
+      } else {
+        throw new HttpException('Token do Google Inválido', 422);
+      }
+    } catch (e) {
       console.log(e);
+      throw new HttpException('Ocorreu um erro inesperado', 500);
     }
   }
   async signin(email: string, password: string) {
@@ -35,14 +62,14 @@ export class AuthService {
       where: { email },
     });
     if (!user) {
-      throw new HttpException('password or email invalid', 400);
+      throw new HttpException('Senha ou email incorretos', 400);
     }
     const passwordIsValid = this.cryptographyUtil.comparePassword(
       password,
       user.encryptPassword,
     );
     if (!passwordIsValid) {
-      throw new HttpException('password or email invalid', 400);
+      throw new HttpException('Senha ou email incorretos', 400);
     }
     const tokenCreated = this.tokenUtil.generateToken({
       email,

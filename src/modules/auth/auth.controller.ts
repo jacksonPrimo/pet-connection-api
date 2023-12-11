@@ -14,6 +14,15 @@ export class AuthController {
     res.status(200).send(result);
   }
 
+  @Post('signinWithGoogle')
+  async signinWithGoogle(
+    @Body() data: { email: string; password: string },
+    @Res() res: Response,
+  ): Promise<any> {
+    const result = await this.authService.signinWithGoogle(data);
+    res.status(200).send(result);
+  }
+
   @Post('signin')
   async signin(
     @Body() body: { email: string; password: string },
