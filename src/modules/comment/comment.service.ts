@@ -7,14 +7,17 @@ export class CommentService {
 
   async create(params: any) {
     try {
-      const newPost = await this.prisma.comment.create({
+      const newComment = await this.prisma.comment.create({
         data: {
           description: params.description,
           authorId: params.authUser.id,
           postId: params.postId,
         },
       });
-      return newPost;
+      return {
+        ...newComment,
+        author: { profileImage: params.authUser.profileImage },
+      };
     } catch (e) {
       console.log(e);
       throw new HttpException('Ocorreu um erro inesperado', 500);
