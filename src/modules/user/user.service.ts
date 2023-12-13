@@ -15,9 +15,9 @@ export class UserService {
       email: params.authUser.email,
       phone: params.authUser.phone,
       profileImage: params.authUser.profileImage,
-      notificaion: params.authUser.notificaion,
-      notificaionLat: params.authUser.notificaionLat,
-      notificaionLng: params.authUser.notificaionLng,
+      notification: params.authUser.notification,
+      notificationLat: params.authUser.notificationLat,
+      notificationLng: params.authUser.notificationLng,
     };
   }
 
