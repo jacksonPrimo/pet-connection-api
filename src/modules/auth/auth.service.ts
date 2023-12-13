@@ -61,7 +61,7 @@ export class AuthService {
     const user = await this.prisma.user.findFirst({
       where: { email },
     });
-    if (!user) {
+    if (!user?.encryptPassword) {
       throw new HttpException('Senha ou email incorretos', 400);
     }
     const passwordIsValid = this.cryptographyUtil.comparePassword(
