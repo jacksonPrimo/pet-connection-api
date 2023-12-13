@@ -1,9 +1,13 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
+import { MailUtil } from 'src/utils/mail.util';
 
 @Injectable()
 export class PostService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private mail: MailUtil,
+  ) {}
 
   async create(params: any): Promise<any> {
     try {
@@ -23,6 +27,7 @@ export class PostService {
           addressLng: params.addressLng,
         },
       });
+      this.notifyCloseUsers(newPost);
       return newPost;
     } catch (e) {
       console.log(e);
@@ -30,10 +35,52 @@ export class PostService {
     }
   }
 
+  private async notifyCloseUsers(post: any): Promise<any> {
+    const latDegrees = 5 / 111;
+    const lngDegrees = 5 / (111 * Math.cos(post.addressLat * (Math.PI / 180)));
+
+    const users = await this.prisma.user.findMany({
+      where: {
+        id: {
+          not: post.authorId,
+        },
+        notification: true,
+        notificationLat: {
+          lte: post.addressLat + latDegrees,
+          gte: post.addressLat - latDegrees,
+        },
+        notificationLng: {
+          lte: post.addressLng + lngDegrees,
+          gte: post.addressLng - lngDegrees,
+        },
+      },
+    });
+
+    users.forEach((user) => {
+      this.mail.sendEmail({
+        to: user.email,
+        subject: 'Novo Cadastro Próximo de Sua Região de interesse',
+        text: `
+          🐶 Saudações ${user.name} 🐶
+          Houve um novo cadastro que pode ser de seu interesse próximo da região onde você selecionou
+          segue o link do cadastro: ${process.env.SITE_URL}/posts?postId=${post.id}
+        `,
+        html: `
+          <h1>🐶 Saudações ${user.name} 🐶</h1>
+          <p>Houve um novo cadastro que pode ser de seu interesse próximo da região onde você selecionou<p>
+          <p>segue o link do cadastro: <a href="${process.env.SITE_URL}/posts?postId=${post.id}" target="_blank">Novo Cadastro</a>
+        `,
+      });
+    });
+  }
+
   async find(id: string): Promise<any> {
     const post = await this.prisma.post.findFirst({
       where: { id },
     });
+
+    this.notifyCloseUsers(post);
+
     if (!post) {
       throw new HttpException(
         'Não encontramos uma publicação com este id',

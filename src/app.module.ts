@@ -9,11 +9,12 @@ import { TokenUtil } from './utils/token.util';
 import { UserModule } from './modules/user/user.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { CryptographyUtil } from './utils/cryptography.util';
+import { MailUtil } from './utils/mail.util';
 
 @Module({
   imports: [AuthModule, PostModule, UserModule, CommentModule],
   controllers: [AppController],
-  providers: [AppService, PrismaService, TokenUtil, CryptographyUtil],
+  providers: [AppService, PrismaService, TokenUtil, CryptographyUtil, MailUtil],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
