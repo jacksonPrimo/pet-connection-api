@@ -79,8 +79,6 @@ export class PostService {
       where: { id },
     });
 
-    this.notifyCloseUsers(post);
-
     if (!post) {
       throw new HttpException(
         'Não encontramos uma publicação com este id',
