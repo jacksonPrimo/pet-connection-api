@@ -90,7 +90,6 @@ export class PostService {
   }
 
   async list(filters: any): Promise<any> {
-    console.log(filters);
     const query = {
       name: {
         contains: filters.name || '',
@@ -186,8 +185,9 @@ export class PostService {
       });
       return { success: true };
     } catch (e) {
+      console.log(e);
       throw new HttpException(
-        'Ocorreu um erro ao tentar atualizar os campos selecionados',
+        'Ocorreu um erro ao tentar deletar a publicação selecionada',
         422,
       );
     }
