@@ -123,6 +123,9 @@ export class PostService {
 
     const posts = await this.prisma.post.findMany({
       where: query,
+      orderBy: {
+        postedAt: 'desc',
+      },
       take: limit,
       skip,
     });
@@ -164,6 +167,9 @@ export class PostService {
           race: params.race,
           situation: params.situation,
           reward: params.reward,
+          addressLng: params.addressLng,
+          addressLat: params.addressLat,
+          addressLabel: params.addressLabel,
         },
       });
       return post;
