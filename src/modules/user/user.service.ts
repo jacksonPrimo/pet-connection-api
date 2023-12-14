@@ -11,6 +11,7 @@ export class UserService {
 
   async me(params: any) {
     return {
+      id: params.authUser.id,
       name: params.authUser.name,
       email: params.authUser.email,
       phone: params.authUser.phone,

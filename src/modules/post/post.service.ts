@@ -130,6 +130,25 @@ export class PostService {
     return posts;
   }
 
+  async myPosts(params, user): Promise<any> {
+    const page = params.page ? +params.page : 1;
+    const limit = params.itemsPerPage ? +params.itemsPerPage : 10;
+    const skip = (page - 1) * limit;
+
+    const posts = await this.prisma.post.findMany({
+      where: {
+        name: {
+          contains: params.name || '',
+        },
+        authorId: user.id,
+      },
+      take: limit,
+      skip,
+    });
+    const total = await this.prisma.post.count();
+    return { posts, total };
+  }
+
   async update(id: string, params: any): Promise<any> {
     try {
       const post = await this.prisma.post.update({
@@ -149,6 +168,23 @@ export class PostService {
         },
       });
       return post;
+    } catch (e) {
+      throw new HttpException(
+        'Ocorreu um erro ao tentar atualizar os campos selecionados',
+        422,
+      );
+    }
+  }
+
+  async delete(id: string, user: any): Promise<any> {
+    try {
+      await this.prisma.post.delete({
+        where: {
+          id,
+          authorId: user.id,
+        },
+      });
+      return { success: true };
     } catch (e) {
       throw new HttpException(
         'Ocorreu um erro ao tentar atualizar os campos selecionados',

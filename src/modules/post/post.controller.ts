@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -27,6 +28,16 @@ export class PostController {
     res.status(200).send(result);
   }
 
+  @Get('/my')
+  async myPosts(
+    @Query() queryParams: any,
+    @Body() body: any,
+    @Res() res: Response,
+  ): Promise<any> {
+    const result = await this.postService.myPosts(queryParams, body.authUser);
+    res.status(200).send(result);
+  }
+
   @Get('/:id')
   async find(@Param('id') id: string, @Res() res: Response): Promise<any> {
     const result = await this.postService.find(id);
@@ -40,6 +51,16 @@ export class PostController {
     @Res() res: Response,
   ): Promise<any> {
     const result = await this.postService.update(id, body);
+    res.status(200).send(result);
+  }
+
+  @Delete('/:id')
+  async delete(
+    @Param('id') id: string,
+    @Body() body: any,
+    @Res() res: Response,
+  ): Promise<any> {
+    const result = await this.postService.delete(id, body.authUser);
     res.status(200).send(result);
   }
 }
