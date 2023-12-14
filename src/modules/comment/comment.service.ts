@@ -16,7 +16,10 @@ export class CommentService {
       });
       return {
         ...newComment,
-        author: { profileImage: params.authUser.profileImage },
+        author: {
+          profileImage: params.authUser.profileImage,
+          id: params.authUser.id,
+        },
       };
     } catch (e) {
       console.log(e);
@@ -33,10 +36,12 @@ export class CommentService {
         postId: params.postId,
       },
       select: {
+        id: true,
         description: true,
         author: {
           select: {
             profileImage: true,
+            id: true,
           },
         },
       },
