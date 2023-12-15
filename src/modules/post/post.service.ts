@@ -77,6 +77,14 @@ export class PostService {
   async find(id: string): Promise<any> {
     const post = await this.prisma.post.findFirst({
       where: { id },
+      include: {
+        author: {
+          select: {
+            email: true,
+            phone: true,
+          },
+        },
+      },
     });
 
     if (!post) {
