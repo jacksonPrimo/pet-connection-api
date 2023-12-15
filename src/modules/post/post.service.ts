@@ -117,9 +117,9 @@ export class PostService {
       };
     }
 
-    const page = filters.page ? +filters.page : 0;
-    const limit = 24;
-    const skip = page * limit;
+    const page = filters.page ? +filters.page : 1;
+    const limit = filters.limit ? +filters.limit : 24;
+    const skip = (page - 1) * limit;
 
     const posts = await this.prisma.post.findMany({
       where: query,
@@ -129,12 +129,14 @@ export class PostService {
       take: limit,
       skip,
     });
-    return posts;
+    const totalPosts = await this.prisma.post.count();
+    const total = Math.ceil(totalPosts / limit);
+    return { posts, total };
   }
 
   async myPosts(params, user): Promise<any> {
     const page = params.page ? +params.page : 1;
-    const limit = params.itemsPerPage ? +params.itemsPerPage : 10;
+    const limit = params.limit ? +params.limit : 10;
     const skip = (page - 1) * limit;
 
     const posts = await this.prisma.post.findMany({
@@ -144,10 +146,14 @@ export class PostService {
         },
         authorId: user.id,
       },
+      orderBy: {
+        postedAt: 'desc',
+      },
       take: limit,
       skip,
     });
-    const total = await this.prisma.post.count();
+    const totalPosts = await this.prisma.post.count();
+    const total = Math.ceil(totalPosts / limit);
     return { posts, total };
   }
 
