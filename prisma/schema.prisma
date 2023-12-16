@@ -39,7 +39,7 @@ model Post {
   addressLng    Float
   addressLabel  String
   postedAt      DateTime   @default(now())
-  author        User       @relation(fields: [authorId], references: [id])
+  author        User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId      String
   comments      Comment[]
 }
@@ -48,8 +48,8 @@ model Comment {
   id            String      @default(uuid()) @id
   description   String
   postedAt      DateTime   @default(now())
-  post          Post       @relation(fields: [postId], references: [id])
+  post          Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId        String
-  author        User       @relation(fields: [authorId], references: [id])
+  author        User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId      String
 }

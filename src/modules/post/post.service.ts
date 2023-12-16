@@ -77,6 +77,14 @@ export class PostService {
   async find(id: string): Promise<any> {
     const post = await this.prisma.post.findFirst({
       where: { id },
+      include: {
+        author: {
+          select: {
+            email: true,
+            phone: true,
+          },
+        },
+      },
     });
 
     if (!post) {
@@ -90,7 +98,6 @@ export class PostService {
   }
 
   async list(filters: any): Promise<any> {
-    console.log(filters);
     const query = {
       name: {
         contains: filters.name || '',
@@ -118,21 +125,26 @@ export class PostService {
       };
     }
 
-    const page = filters.page ? +filters.page : 0;
-    const limit = 24;
-    const skip = page * limit;
+    const page = filters.page ? +filters.page : 1;
+    const limit = filters.limit ? +filters.limit : 24;
+    const skip = (page - 1) * limit;
 
     const posts = await this.prisma.post.findMany({
       where: query,
+      orderBy: {
+        postedAt: 'desc',
+      },
       take: limit,
       skip,
     });
-    return posts;
+    const totalPosts = await this.prisma.post.count();
+    const total = Math.ceil(totalPosts / limit);
+    return { posts, total };
   }
 
   async myPosts(params, user): Promise<any> {
     const page = params.page ? +params.page : 1;
-    const limit = params.itemsPerPage ? +params.itemsPerPage : 10;
+    const limit = params.limit ? +params.limit : 10;
     const skip = (page - 1) * limit;
 
     const posts = await this.prisma.post.findMany({
@@ -142,10 +154,14 @@ export class PostService {
         },
         authorId: user.id,
       },
+      orderBy: {
+        postedAt: 'desc',
+      },
       take: limit,
       skip,
     });
-    const total = await this.prisma.post.count();
+    const totalPosts = await this.prisma.post.count();
+    const total = Math.ceil(totalPosts / limit);
     return { posts, total };
   }
 
@@ -165,6 +181,9 @@ export class PostService {
           race: params.race,
           situation: params.situation,
           reward: params.reward,
+          addressLng: params.addressLng,
+          addressLat: params.addressLat,
+          addressLabel: params.addressLabel,
         },
       });
       return post;
@@ -186,8 +205,9 @@ export class PostService {
       });
       return { success: true };
     } catch (e) {
+      console.log(e);
       throw new HttpException(
-        'Ocorreu um erro ao tentar atualizar os campos selecionados',
+        'Ocorreu um erro ao tentar deletar a publicação selecionada',
         422,
       );
     }

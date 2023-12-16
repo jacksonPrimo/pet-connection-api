@@ -16,7 +16,10 @@ export class CommentService {
       });
       return {
         ...newComment,
-        author: { profileImage: params.authUser.profileImage },
+        author: {
+          profileImage: params.authUser.profileImage,
+          id: params.authUser.id,
+        },
       };
     } catch (e) {
       console.log(e);
@@ -25,25 +28,32 @@ export class CommentService {
   }
 
   async list(params: any) {
-    const page = params.page ? +params.page : 0;
-    const limit = 10;
-    const skip = page * limit;
+    const page = params.page ? +params.page : 1;
+    const limit = params.limit ? +params.limit : 10;
+    const skip = (page - 1) * limit;
     const comments = await this.prisma.comment.findMany({
       where: {
         postId: params.postId,
       },
       select: {
+        id: true,
         description: true,
         author: {
           select: {
             profileImage: true,
+            id: true,
           },
         },
+      },
+      orderBy: {
+        postedAt: 'desc',
       },
       take: limit,
       skip,
     });
-    return comments;
+    const totalComments = await this.prisma.comment.count();
+    const total = Math.ceil(totalComments / limit);
+    return { comments, total };
   }
 
   async remove(id: string, user: any) {
