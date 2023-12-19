@@ -51,7 +51,11 @@ export class CommentService {
       take: limit,
       skip,
     });
-    const totalComments = await this.prisma.comment.count();
+    const totalComments = await this.prisma.comment.count({
+      where: {
+        postId: params.postId,
+      },
+    });
     const total = Math.ceil(totalComments / limit);
     return { comments, total };
   }

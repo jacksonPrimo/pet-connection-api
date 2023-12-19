@@ -106,11 +106,21 @@ export class PostService {
         contains: filters.chip || '',
       },
     };
-    if (filters.situation && filters.situation.length) {
-      query['situation'].in = filters.situation;
+    if (filters.situation?.length) {
+      if (typeof filters.situation == 'string') {
+        filters.situation = filters.situation.split(',');
+      }
+      query['situation'] = {
+        in: filters.situation,
+      };
     }
-    if (filters.race && filters.race.length) {
-      query['race'].in = filters.race;
+    if (filters.race?.length) {
+      if (typeof filters.race == 'string') {
+        filters.race = filters.race.split(',');
+      }
+      query['race'] = {
+        in: filters.race,
+      };
     }
     if (filters.biggerThanLat && filters.smallerThanLat) {
       query['addressLat'] = {
@@ -137,7 +147,9 @@ export class PostService {
       take: limit,
       skip,
     });
-    const totalPosts = await this.prisma.post.count();
+    const totalPosts = await this.prisma.post.count({
+      where: query,
+    });
     const total = Math.ceil(totalPosts / limit);
     return { posts, total };
   }
@@ -147,20 +159,23 @@ export class PostService {
     const limit = params.limit ? +params.limit : 10;
     const skip = (page - 1) * limit;
 
-    const posts = await this.prisma.post.findMany({
-      where: {
-        name: {
-          contains: params.name || '',
-        },
-        authorId: user.id,
+    const query = {
+      name: {
+        contains: params.name || '',
       },
+      authorId: user.id,
+    };
+    const posts = await this.prisma.post.findMany({
+      where: query,
       orderBy: {
         postedAt: 'desc',
       },
       take: limit,
       skip,
     });
-    const totalPosts = await this.prisma.post.count();
+    const totalPosts = await this.prisma.post.count({
+      where: query,
+    });
     const total = Math.ceil(totalPosts / limit);
     return { posts, total };
   }
