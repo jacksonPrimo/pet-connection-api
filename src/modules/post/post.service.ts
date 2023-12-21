@@ -106,6 +106,14 @@ export class PostService {
         contains: filters.chip || '',
       },
     };
+    if (filters.gender?.length) {
+      if (typeof filters.gender == 'string') {
+        filters.gender = filters.gender.split(',');
+      }
+      query['gender'] = {
+        in: filters.gender,
+      };
+    }
     if (filters.situation?.length) {
       if (typeof filters.situation == 'string') {
         filters.situation = filters.situation.split(',');
