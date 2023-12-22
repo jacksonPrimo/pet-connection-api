@@ -1,13 +1,9 @@
 import { HttpException, Injectable, NestMiddleware } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
 import { TokenUtil } from 'src/utils/token.util';
-
+import prisma from 'src/utils/prisma.util';
 @Injectable()
 export class AuthenticatedMiddleware implements NestMiddleware {
-  constructor(
-    private tokenUtil: TokenUtil,
-    private prisma: PrismaService,
-  ) {}
+  constructor(private tokenUtil: TokenUtil) {}
   async use(req: any, res: any, next: () => void) {
     const { authorization } = req.headers;
     if (!authorization) throw new HttpException('Autenticação necessária', 401);
@@ -15,7 +11,7 @@ export class AuthenticatedMiddleware implements NestMiddleware {
     if (!token) throw new HttpException('Autenticação necessária', 401);
     await this.tokenUtil.validateToken(token);
     const { userId } = this.tokenUtil.decodeToken(token);
-    const user = await this.prisma.user.findFirst({
+    const user = await prisma.user.findFirst({
       where: { id: userId },
     });
     if (!user) {

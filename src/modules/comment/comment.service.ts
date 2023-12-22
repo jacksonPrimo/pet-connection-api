@@ -1,13 +1,13 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
+import prisma from 'src/utils/prisma.util';
 
 @Injectable()
 export class CommentService {
-  constructor(private prisma: PrismaService) {}
+  constructor() {}
 
   async create(params: any) {
     try {
-      const newComment = await this.prisma.comment.create({
+      const newComment = await prisma.comment.create({
         data: {
           description: params.description,
           authorId: params.authUser.id,
@@ -31,7 +31,7 @@ export class CommentService {
     const page = params.page ? +params.page : 1;
     const limit = params.limit ? +params.limit : 10;
     const skip = (page - 1) * limit;
-    const comments = await this.prisma.comment.findMany({
+    const comments = await prisma.comment.findMany({
       where: {
         postId: params.postId,
       },
@@ -51,7 +51,7 @@ export class CommentService {
       take: limit,
       skip,
     });
-    const totalComments = await this.prisma.comment.count({
+    const totalComments = await prisma.comment.count({
       where: {
         postId: params.postId,
       },
@@ -61,7 +61,7 @@ export class CommentService {
   }
 
   async remove(id: string, user: any) {
-    await this.prisma.comment.delete({
+    await prisma.comment.delete({
       where: { id, authorId: user.id },
     });
   }

@@ -1,17 +1,14 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
 import { MailUtil } from 'src/utils/mail.util';
+import prisma from 'src/utils/prisma.util';
 
 @Injectable()
 export class PostService {
-  constructor(
-    private prisma: PrismaService,
-    private mail: MailUtil,
-  ) {}
+  constructor(private mail: MailUtil) {}
 
   async create(params: any): Promise<any> {
     try {
-      const newPost = await this.prisma.post.create({
+      const newPost = await prisma.post.create({
         data: {
           name: params.name,
           description: params.description,
@@ -39,7 +36,7 @@ export class PostService {
     const latDegrees = 5 / 111;
     const lngDegrees = 5 / (111 * Math.cos(post.addressLat * (Math.PI / 180)));
 
-    const users = await this.prisma.user.findMany({
+    const users = await prisma.user.findMany({
       where: {
         id: {
           not: post.authorId,
@@ -75,7 +72,7 @@ export class PostService {
   }
 
   async find(id: string): Promise<any> {
-    const post = await this.prisma.post.findFirst({
+    const post = await prisma.post.findFirst({
       where: { id },
       include: {
         author: {
@@ -147,7 +144,7 @@ export class PostService {
     const limit = filters.limit ? +filters.limit : 24;
     const skip = (page - 1) * limit;
 
-    const posts = await this.prisma.post.findMany({
+    const posts = await prisma.post.findMany({
       where: query,
       orderBy: {
         postedAt: 'desc',
@@ -155,7 +152,7 @@ export class PostService {
       take: limit,
       skip,
     });
-    const totalPosts = await this.prisma.post.count({
+    const totalPosts = await prisma.post.count({
       where: query,
     });
     const total = Math.ceil(totalPosts / limit);
@@ -173,7 +170,7 @@ export class PostService {
       },
       authorId: user.id,
     };
-    const posts = await this.prisma.post.findMany({
+    const posts = await prisma.post.findMany({
       where: query,
       orderBy: {
         postedAt: 'desc',
@@ -181,7 +178,7 @@ export class PostService {
       take: limit,
       skip,
     });
-    const totalPosts = await this.prisma.post.count({
+    const totalPosts = await prisma.post.count({
       where: query,
     });
     const total = Math.ceil(totalPosts / limit);
@@ -190,7 +187,7 @@ export class PostService {
 
   async update(id: string, params: any): Promise<any> {
     try {
-      const post = await this.prisma.post.update({
+      const post = await prisma.post.update({
         where: {
           id,
           authorId: params.authUser.id,
@@ -220,7 +217,7 @@ export class PostService {
 
   async delete(id: string, user: any): Promise<any> {
     try {
-      await this.prisma.post.delete({
+      await prisma.post.delete({
         where: {
           id,
           authorId: user.id,
