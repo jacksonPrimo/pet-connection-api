@@ -1,14 +1,14 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { CryptographyUtil } from 'src/utils/cryptography.util';
 import { TokenUtil } from 'src/utils/token.util';
-import { PrismaService } from 'src/prisma.service';
+import prisma from 'src/utils/prisma.util';
 import axios from 'axios';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 @Injectable()
 export class AuthService {
   constructor(
     private tokenUtil: TokenUtil,
     private cryptographyUtil: CryptographyUtil,
-    private prisma: PrismaService,
   ) {}
   async signup(params: any): Promise<any> {
     const encryptPassword = this.cryptographyUtil.encryptPassword(
@@ -20,14 +20,20 @@ export class AuthService {
       name: params.name,
     };
     try {
-      const newUser = await this.prisma.user.create({ data });
+      const newUser = await prisma.user.create({ data });
       const tokenCreated = this.tokenUtil.generateToken({
         userId: newUser.id,
         email: newUser.email,
       });
       return { accessToken: tokenCreated };
     } catch (e) {
-      throw new HttpException('Ocorreu um erro inesperado', 422);
+      let message = '';
+      if (e instanceof PrismaClientKnownRequestError && e.code === 'P2002') {
+        message = 'Este email já está em uso';
+      } else {
+        message = 'Ocorreu um erro inesperado';
+      }
+      throw new HttpException(message, 422);
     }
   }
   async signinWithGoogle(params: any): Promise<any> {
@@ -40,10 +46,10 @@ export class AuthService {
           email: response.data.email,
           name: response.data.email.split('@')[0],
         };
-        let user = await this.prisma.user.findFirst({
+        let user = await prisma.user.findFirst({
           where: { email: data.email },
         });
-        if (!user) user = await this.prisma.user.create({ data });
+        if (!user) user = await prisma.user.create({ data });
         const tokenCreated = this.tokenUtil.generateToken({
           userId: user.id,
           email: user.email,
@@ -58,7 +64,7 @@ export class AuthService {
     }
   }
   async signin(email: string, password: string) {
-    const user = await this.prisma.user.findFirst({
+    const user = await prisma.user.findFirst({
       where: { email },
     });
     if (!user?.encryptPassword) {
