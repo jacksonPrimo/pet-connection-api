@@ -1,9 +1,12 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { CryptographyUtil } from 'src/utils/cryptography.util';
-import prisma from 'src/utils/prisma.util';
+import { PrismaInstance } from 'src/utils/prisma.util';
 @Injectable()
 export class UserService {
-  constructor(private cryptographyUtil: CryptographyUtil) {}
+  constructor(
+    private cryptographyUtil: CryptographyUtil,
+    private readonly prisma: PrismaInstance,
+  ) {}
 
   async me(params: any) {
     return {
@@ -36,7 +39,7 @@ export class UserService {
         );
         data['encryptPassword'] = encryptPassword;
       }
-      await prisma.user.update({
+      await this.prisma.user.update({
         where: {
           id: params.authUser.id,
         },

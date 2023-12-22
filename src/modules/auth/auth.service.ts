@@ -1,14 +1,15 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { CryptographyUtil } from 'src/utils/cryptography.util';
 import { TokenUtil } from 'src/utils/token.util';
-import prisma from 'src/utils/prisma.util';
 import axios from 'axios';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { PrismaInstance } from 'src/utils/prisma.util';
 @Injectable()
 export class AuthService {
   constructor(
     private tokenUtil: TokenUtil,
     private cryptographyUtil: CryptographyUtil,
+    private readonly prisma: PrismaInstance,
   ) {}
   async signup(params: any): Promise<any> {
     const encryptPassword = this.cryptographyUtil.encryptPassword(
@@ -20,7 +21,7 @@ export class AuthService {
       name: params.name,
     };
     try {
-      const newUser = await prisma.user.create({ data });
+      const newUser = await this.prisma.user.create({ data });
       const tokenCreated = this.tokenUtil.generateToken({
         userId: newUser.id,
         email: newUser.email,
@@ -46,10 +47,10 @@ export class AuthService {
           email: response.data.email,
           name: response.data.email.split('@')[0],
         };
-        let user = await prisma.user.findFirst({
+        let user = await this.prisma.user.findFirst({
           where: { email: data.email },
         });
-        if (!user) user = await prisma.user.create({ data });
+        if (!user) user = await this.prisma.user.create({ data });
         const tokenCreated = this.tokenUtil.generateToken({
           userId: user.id,
           email: user.email,
@@ -64,7 +65,7 @@ export class AuthService {
     }
   }
   async signin(email: string, password: string) {
-    const user = await prisma.user.findFirst({
+    const user = await this.prisma.user.findFirst({
       where: { email },
     });
     if (!user?.encryptPassword) {
