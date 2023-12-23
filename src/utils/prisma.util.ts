@@ -8,7 +8,7 @@ export class PrismaInstance extends PrismaClient {
 
   public static getInstance(): PrismaClient {
     if (!PrismaInstance.instance) {
-      PrismaInstance.instance = new PrismaClient();
+      PrismaInstance.instance = new PrismaClient({ log: ['query', 'info'] });
     }
 
     return PrismaInstance.instance;

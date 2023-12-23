@@ -11,14 +11,14 @@ export class AuthenticatedMiddleware implements NestMiddleware {
     const { authorization } = req.headers;
     if (!authorization) throw new HttpException('Autenticação necessária', 401);
     const [, token] = authorization.split(' ');
-    if (!token) throw new HttpException('Autenticação necessária', 401);
+    if (!token) throw new HttpException('Autenticação inválida', 401);
     await this.tokenUtil.validateToken(token);
     const { userId } = this.tokenUtil.decodeToken(token);
     const user = await this.prisma.user.findFirst({
       where: { id: userId },
     });
     if (!user) {
-      throw new HttpException('Usuário autenticado não encontrado', 404);
+      throw new HttpException('Usuário autenticado não encontrado', 401);
     } else {
       req.body.authUser = user;
       next();

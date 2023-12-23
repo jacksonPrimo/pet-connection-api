@@ -23,9 +23,9 @@ export class TokenUtil {
       return verify(token, this.secret);
     } catch (error) {
       if (error instanceof TokenExpiredError) {
-        throw new HttpException('token expired!', 401);
+        throw new HttpException('Token expirado!', 401);
       } else {
-        throw new HttpException('token not valid!', 401);
+        throw new HttpException('Token inválido!', 401);
       }
     }
   }
