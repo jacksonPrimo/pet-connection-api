@@ -11,7 +11,7 @@ export class AuthController {
     @Res() res: Response,
   ): Promise<any> {
     const result = await this.authService.signup(data);
-    res.status(200).send(result);
+    res.status(201).send(result);
   }
 
   @Post('signinWithGoogle')
@@ -20,7 +20,7 @@ export class AuthController {
     @Res() res: Response,
   ): Promise<any> {
     const result = await this.authService.signinWithGoogle(data);
-    res.status(200).send(result);
+    res.status(201).send(result);
   }
 
   @Post('signin')
@@ -29,6 +29,6 @@ export class AuthController {
     @Res() res: Response,
   ) {
     const result = await this.authService.signin(body.email, body.password);
-    res.status(200).send(result);
+    res.status(201).send(result);
   }
 }
