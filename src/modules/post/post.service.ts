@@ -171,8 +171,11 @@ export class PostService {
       name: {
         contains: params.name || '',
       },
-      authorId: user.id,
     };
+
+    if (!this.isAdmin(user)) {
+      query['authorId'] = user.id;
+    }
     const posts = await this.prisma.post.findMany({
       where: query,
       orderBy: {
@@ -220,11 +223,12 @@ export class PostService {
 
   async delete(id: string, user: any): Promise<any> {
     try {
+      const query = { id };
+      if (!this.isAdmin(user)) {
+        query['authorId'] = user.id;
+      }
       await this.prisma.post.delete({
-        where: {
-          id,
-          authorId: user.id,
-        },
+        where: query,
       });
       return { success: true };
     } catch (e) {
@@ -234,5 +238,9 @@ export class PostService {
         422,
       );
     }
+  }
+
+  private isAdmin(user: any) {
+    return ['jackson.primodev@gmail.com'].includes(user.email);
   }
 }
