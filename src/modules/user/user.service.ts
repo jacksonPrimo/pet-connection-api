@@ -27,12 +27,14 @@ export class UserService {
       if (params.name) data['name'] = params.name;
       if (params.email) data['email'] = params.email;
       if (params.phone) data['phone'] = params.phone;
-      if (params.profileImage) data['profileImage'] = params.profileImage;
+      if (params.profileImage !== null)
+        data['profileImage'] = params.profileImage;
       if (params.notificationLat)
         data['notificationLat'] = params.notificationLat;
       if (params.notificationLng)
         data['notificationLng'] = params.notificationLng;
-      if (params.notification) data['notification'] = params.notification;
+      if (params.notification !== null)
+        data['notification'] = params.notification;
       if (params.password) {
         const encryptPassword = this.cryptographyUtil.encryptPassword(
           params.password,
