@@ -146,14 +146,14 @@ export class PostService {
     const page = params.page ? +params.page : 1;
     const limit = params.limit ? +params.limit : 10;
     const skip = (page - 1) * limit;
-
-    const posts = await this.prisma.post.findMany({
-      where: {
-        name: {
-          contains: params.name || '',
-        },
-        authorId: user.id,
+    const query = {
+      name: {
+        contains: params.name || '',
       },
+      authorId: user.id,
+    };
+    const posts = await this.prisma.post.findMany({
+      where: query,
       orderBy: {
         postedAt: 'desc',
       },
