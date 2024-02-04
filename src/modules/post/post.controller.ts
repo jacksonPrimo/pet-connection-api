@@ -19,7 +19,7 @@ export class PostController {
   @Post('create')
   async create(@Body() body: any, @Res() res: Response): Promise<any> {
     const result = await this.postService.create(body);
-    res.status(200).send(result);
+    res.status(201).send(result);
   }
 
   @Get('/list')

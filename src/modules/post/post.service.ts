@@ -1,12 +1,12 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
 import { MailUtil } from 'src/utils/mail.util';
+import { PrismaInstance } from 'src/utils/prisma.util';
 
 @Injectable()
 export class PostService {
   constructor(
-    private prisma: PrismaService,
     private mail: MailUtil,
+    private readonly prisma: PrismaInstance,
   ) {}
 
   async create(params: any): Promise<any> {
@@ -106,11 +106,29 @@ export class PostService {
         contains: filters.chip || '',
       },
     };
-    if (filters.situation && filters.situation.length) {
-      query['situation'].in = filters.situation;
+    if (filters.gender?.length) {
+      if (typeof filters.gender == 'string') {
+        filters.gender = filters.gender.split(',');
+      }
+      query['gender'] = {
+        in: filters.gender,
+      };
     }
-    if (filters.race && filters.race.length) {
-      query['race'].in = filters.race;
+    if (filters.situation?.length) {
+      if (typeof filters.situation == 'string') {
+        filters.situation = filters.situation.split(',');
+      }
+      query['situation'] = {
+        in: filters.situation,
+      };
+    }
+    if (filters.race?.length) {
+      if (typeof filters.race == 'string') {
+        filters.race = filters.race.split(',');
+      }
+      query['race'] = {
+        in: filters.race,
+      };
     }
     if (filters.biggerThanLat && filters.smallerThanLat) {
       query['addressLat'] = {
@@ -137,7 +155,9 @@ export class PostService {
       take: limit,
       skip,
     });
-    const totalPosts = await this.prisma.post.count();
+    const totalPosts = await this.prisma.post.count({
+      where: query,
+    });
     const total = Math.ceil(totalPosts / limit);
     return { posts, total };
   }
@@ -160,7 +180,9 @@ export class PostService {
       take: limit,
       skip,
     });
-    const totalPosts = await this.prisma.post.count();
+    const totalPosts = await this.prisma.post.count({
+      where: query,
+    });
     const total = Math.ceil(totalPosts / limit);
     return { posts, total };
   }

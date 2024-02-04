@@ -1,14 +1,15 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { CryptographyUtil } from 'src/utils/cryptography.util';
 import { TokenUtil } from 'src/utils/token.util';
-import { PrismaService } from 'src/prisma.service';
 import axios from 'axios';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { PrismaInstance } from 'src/utils/prisma.util';
 @Injectable()
 export class AuthService {
   constructor(
     private tokenUtil: TokenUtil,
     private cryptographyUtil: CryptographyUtil,
-    private prisma: PrismaService,
+    private readonly prisma: PrismaInstance,
   ) {}
   async signup(params: any): Promise<any> {
     const encryptPassword = this.cryptographyUtil.encryptPassword(
@@ -27,7 +28,13 @@ export class AuthService {
       });
       return { accessToken: tokenCreated };
     } catch (e) {
-      throw new HttpException('Ocorreu um erro inesperado', 422);
+      let message = '';
+      if (e instanceof PrismaClientKnownRequestError && e.code === 'P2002') {
+        message = 'Este email já está em uso';
+      } else {
+        message = 'Ocorreu um erro inesperado';
+      }
+      throw new HttpException(message, 422);
     }
   }
   async signinWithGoogle(params: any): Promise<any> {

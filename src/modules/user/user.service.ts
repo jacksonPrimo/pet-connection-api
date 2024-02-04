@@ -1,12 +1,11 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
 import { CryptographyUtil } from 'src/utils/cryptography.util';
-
+import { PrismaInstance } from 'src/utils/prisma.util';
 @Injectable()
 export class UserService {
   constructor(
-    private prisma: PrismaService,
     private cryptographyUtil: CryptographyUtil,
+    private readonly prisma: PrismaInstance,
   ) {}
 
   async me(params: any) {

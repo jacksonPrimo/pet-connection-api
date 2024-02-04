@@ -1,9 +1,9 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaInstance } from 'src/utils/prisma.util';
 
 @Injectable()
 export class CommentService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaInstance) {}
 
   async create(params: any) {
     try {
@@ -51,7 +51,11 @@ export class CommentService {
       take: limit,
       skip,
     });
-    const totalComments = await this.prisma.comment.count();
+    const totalComments = await this.prisma.comment.count({
+      where: {
+        postId: params.postId,
+      },
+    });
     const total = Math.ceil(totalComments / limit);
     return { comments, total };
   }
